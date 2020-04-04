@@ -1,6 +1,6 @@
 #!python
 
-from linkedlist import LinkedList
+from linkedlist.linkedlist import LinkedList
 
 
 class HashTable(object):
@@ -9,6 +9,7 @@ class HashTable(object):
         """Initialize this hash table with the given initial size."""
         # Create a new list (used as fixed-size array) of empty linked lists
         self.buckets = [LinkedList() for _ in range(init_size)]
+        self.size = 0
 
     def __str__(self):
         """Return a formatted string representation of this hash table."""
@@ -26,7 +27,10 @@ class HashTable(object):
 
     def keys(self):
         """Return a list of all keys in this hash table.
-        TODO: Running time: O(???) Why and under what conditions?"""
+        Best and Worst Running time: O(k) for k items in all buckets because
+            the size of the list of buckets is constant but the size of items in
+            each bucket varies, causing the time it takes to complete the function
+            increase linerally with the size of all the bukets not the list itself."""
         # Collect all keys in each bucket
         all_keys = []
         for bucket in self.buckets:
@@ -36,13 +40,22 @@ class HashTable(object):
 
     def values(self):
         """Return a list of all values in this hash table.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Loop through all buckets
-        # TODO: Collect all values in each bucket
+        Best and Worst Running time: O(k) for k items in all buckets because
+            the size of the list of buckets is constant but the size of items in
+            each bucket varies, causing the time it takes to complete the function
+            increase linerally with the size of all the bukets not the list itself."""
+        all_values = []
+        for bucket in self.buckets:
+            for key, value in bucket.items():
+                all_values.append(value)
+        return all_values
 
     def items(self):
         """Return a list of all items (key-value pairs) in this hash table.
-        TODO: Running time: O(???) Why and under what conditions?"""
+        Best and Worst Running time: O(n) for n items in all buckets because
+            the size of the list of buckets is constant but the size of items in
+            each bucket varies, causing the time it takes to complete the function
+            increase linerally with the size of all the bukets not the list itself."""
         # Collect all pairs of key-value entries in each bucket
         all_items = []
         for bucket in self.buckets:
@@ -51,41 +64,66 @@ class HashTable(object):
 
     def length(self):
         """Return the number of key-value entries by traversing its buckets.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Loop through all buckets
-        # TODO: Count number of key-value entries in each bucket
+        Best and Worst Case Running time: O(1) (constant time) because of the
+            length property."""
+        return self.size
 
     def contains(self, key):
         """Return True if this hash table contains the given key, or False.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Find bucket where given key belongs
-        # TODO: Check if key-value entry exists in bucket
+        Best Case Running time: O(1) if the first item is the item we're 
+            looking for
+        Worst Case Runnin Time: O(n) for n items in the bucket and the key is the last
+            item in the list because as the size of the list increaces the time it
+            takes to complete the function increases lineraly"""
+        bucket = self.buckets[self._bucket_index(key)]
+        for item_key, value in bucket.items():
+            if item_key is key:
+                return True
+        return False
 
     def get(self, key):
         """Return the value associated with the given key, or raise KeyError.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Find bucket where given key belongs
-        # TODO: Check if key-value entry exists in bucket
-        # TODO: If found, return value associated with given key
-        # TODO: Otherwise, raise error to tell user get failed
-        # Hint: raise KeyError('Key not found: {}'.format(key))
+        Best Case Running time: O(1) if the item is the first item in the first
+            bucket.
+        Worst Case Running Time: O(n) for n items in the bucket and the item is the 
+            last item in the bucket because as the size of the bucket increases, the 
+            time it takes to complete the function increases lineraly."""
+        bucket = self.buckets[self._bucket_index(key)]
+        for item_key, item_value in bucket.items():
+            if item_key is key:
+                return int(item_value)
+        raise KeyError('Key not found: {}'.format(key))
 
     def set(self, key, value):
         """Insert or update the given key with its associated value.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Find bucket where given key belongs
-        # TODO: Check if key-value entry exists in bucket
-        # TODO: If found, update value associated with given key
-        # TODO: Otherwise, insert given key-value entry into bucket
+        Best Case Running time: O(1) if the item is the first item in the first
+            bucket.
+        Worst Case Running Time: O(n) for n items in the bucket and the item is 
+            not in the bucket because as the size of the bucket increases, the 
+            time it takes to complete the function increases lineraly."""
+        bucket = self.buckets[self._bucket_index(key)]
+        # Get the old key-value pair 
+        for item_key, item_value in bucket.items():
+            if item_key == key:
+                bucket.delete((item_key, item_value))
+                self.size -= 1
+        bucket.append((key, value))
+        self.size += 1
 
     def delete(self, key):
-        """Delete the given key from this hash table, or raise KeyError.
-        TODO: Running time: O(???) Why and under what conditions?"""
-        # TODO: Find bucket where given key belongs
-        # TODO: Check if key-value entry exists in bucket
-        # TODO: If found, delete entry associated with given key
-        # TODO: Otherwise, raise error to tell user delete failed
-        # Hint: raise KeyError('Key not found: {}'.format(key))
+        """Insert or update the given key with its associated value.
+        Best Case Running time: O(1) if the item is the first item in the first
+            bucket.
+        Worst Case Running Time: O(n) for n items in the bucket and the item is the 
+            last item in the bucket because as the size of the bucket increases, the 
+            time it takes to complete the function increases lineraly."""
+        bucket = self.buckets[self._bucket_index(key)]
+        for item_key, item_value in bucket.items():
+            if item_key is key:
+                bucket.delete((item_key, item_value))
+                self.size -= 1
+                return
+        raise KeyError('Key not found: {}'.format(key))
 
 
 def test_hash_table():

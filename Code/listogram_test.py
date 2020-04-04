@@ -88,21 +88,21 @@ class ListogramTest(unittest.TestCase):
 
     def test_sample(self):
         histogram = Listogram(self.fish_words)
-        # Create a list of 10,000 word samples from histogram
-        samples_list = [histogram.sample() for _ in range(10000)]
-        # Create a histogram to count frequency of each word
-        samples_hist = Listogram(samples_list)
-        # Check each word in original histogram
-        for word, count in histogram:
-            # Calculate word's observed frequency
-            observed_freq = count / histogram.tokens
-            # Calculate word's sampled frequency
-            samples = samples_hist.frequency(word)
-            sampled_freq = samples / samples_hist.tokens
-            # Verify word's sampled frequency is close to observed frequency
-            lower_bound = observed_freq * 0.9  # 10% below = 90% = 0.9
-            upper_bound = observed_freq * 1.1  # 10% above = 110% = 1.1
-            assert lower_bound <= sampled_freq <= upper_bound
+        # Verify that the words are being chosen based on the probabilistic distrobution of the word
+        # Optimized for space, not time 
+        distrobution = []
+        for _ in range(0, 1000):
+            sample = histogram.sample()
+            for index, word_set in enumerate(distrobution):
+                if sample == word_set[0]:
+                    word_set[1] += 1
+                    distrobution[index] = word_set
+                    return
+                else:
+                    distrobution.append([sample, 1])
+        for word_set in distrobution:
+            self.assertAlmostEqual(word_set[1]/1000, histogram[word_set[0]/len(histogram)])
+                    
 
 
 if __name__ == '__main__':
